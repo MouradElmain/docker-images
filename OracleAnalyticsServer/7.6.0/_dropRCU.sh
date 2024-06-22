@@ -1,8 +1,8 @@
 #!/bin/bash
 
 #
-# File: _validateRCU.sh
-# Purpose: Valudate the RCU schemas creation of OAS 5.9.0 in Docker container
+# File: _dropRCU.sh
+# Purpose: Drop the RCU schemas of OAS in Docker container
 # Author: Gianni Ceresa (gianni.ceresa@datalysis.ch), February 2020
 # Absolutely no warranty, use at your own risk
 # Please include this header in any copy or reuse of the script you make
@@ -19,7 +19,7 @@
 
 # - BI_CONFIG_RCU_DBSTRING
 if [ "$BI_CONFIG_RCU_DBSTRING" == "" ]; then
-  echo "BI_CONFIG_RCU_DBSTRING not defined, can't validate RCU schemas creation"
+  echo "BI_CONFIG_RCU_DBSTRING not defined, can't drop RCU schemas"
   exit 1
 fi;
 
@@ -31,14 +31,8 @@ fi;
 
 # - BI_CONFIG_RCU_PWD
 if [ "$BI_CONFIG_RCU_PWD" == "" ]; then
-  echo "BI_CONFIG_RCU_PWD not defined, can't validate RCU schemas creation"
+  echo "BI_CONFIG_RCU_PWD not defined, can't drop RCU schemas"
   exit 1
-fi;
-
-# - BI_CONFIG_RCU_NEW_DB_PWD
-if [ "$BI_CONFIG_RCU_NEW_DB_PWD" == "" ]; then
-  BI_CONFIG_RCU_NEW_DB_PWD=Admin123
-  echo "BI_CONFIG_RCU_NEW_DB_PWD not defined, default: $BI_CONFIG_RCU_NEW_DB_PWD"
 fi;
 
 # - BI_CONFIG_RCU_DB_PREFIX
@@ -46,7 +40,7 @@ if [ "$BI_CONFIG_RCU_DB_PREFIX" == "" ]; then
   BI_CONFIG_RCU_DB_PREFIX=$(hostname -f)
   # DB prefix must start with a letter: replace first digit with 'G-P' (not hexa chars)
   case ${BI_CONFIG_RCU_DB_PREFIX:0:1} in
-  	0)
+    0)
       BI_CONFIG_RCU_DB_PREFIX="g"${BI_CONFIG_RCU_DB_PREFIX:1:11}
       ;;
     1)
@@ -100,28 +94,25 @@ COMPONENTS="$COMPONENTS -component IAU_VIEWER"
 
 # RCU settings
 RCU_SETTINGS=""
+RCU_SETTINGS="$RCU_SETTINGS -dropRepository"
 RCU_SETTINGS="$RCU_SETTINGS -silent"
-RCU_SETTINGS="$RCU_SETTINGS -createRepository"
 RCU_SETTINGS="$RCU_SETTINGS -schemaPrefix $BI_CONFIG_RCU_DB_PREFIX"
-RCU_SETTINGS="$RCU_SETTINGS -useSamePasswordForAllSchemaUsers true"
 RCU_SETTINGS="$RCU_SETTINGS $DBCONN_PARAM"
 RCU_SETTINGS="$RCU_SETTINGS $COMPONENTS"
 
-# write password in file
-(echo $BI_CONFIG_RCU_PWD; echo $BI_CONFIG_RCU_NEW_DB_PWD) > $ORACLE_HOME/_tmp_rcu.dat
-
 #
-# validate RCU create command and settings 
+# validate RCU drop command and settings 
 #
-$ORACLE_HOME/oracle_common/bin/rcu $RCU_SETTINGS -validate -f < $ORACLE_HOME/_tmp_rcu.dat
+$ORACLE_HOME/oracle_common/bin/rcu $RCU_SETTINGS -validate <<< $BI_CONFIG_RCU_PWD
 
 if [ $? -ne 0 ]; then
-  echo "ERROR validating RCU command and settings, can't validate RCU schemas creation"
-  echo "command: $ORACLE_HOME/oracle_common/bin/rcu $RCU_SETTINGS -validate -f < $ORACLE_HOME/_tmp_rcu.dat"
-  rm $ORACLE_HOME/_tmp_rcu.dat
+  echo "ERROR validating RCU command and settings, can't drop RCU schemas"
+  echo "command: $ORACLE_HOME/oracle_common/bin/rcu $RCU_SETTINGS -validate <<< '$BI_CONFIG_RCU_PWD'"
   exit 1
 fi
 
-# remove password file
-rm $ORACLE_HOME/_tmp_rcu.dat
+#
+# drop RCU schemas
+#
+$ORACLE_HOME/oracle_common/bin/rcu $RCU_SETTINGS <<< $BI_CONFIG_RCU_PWD
 

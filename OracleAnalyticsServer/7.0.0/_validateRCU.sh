@@ -2,7 +2,7 @@
 
 #
 # File: _validateRCU.sh
-# Purpose: Valudate the RCU schemas creation of OAS 5.9.0 in Docker container
+# Purpose: Valudate the RCU schemas creation of OAS in Docker container
 # Author: Gianni Ceresa (gianni.ceresa@datalysis.ch), February 2020
 # Absolutely no warranty, use at your own risk
 # Please include this header in any copy or reuse of the script you make
@@ -33,12 +33,6 @@ fi;
 if [ "$BI_CONFIG_RCU_PWD" == "" ]; then
   echo "BI_CONFIG_RCU_PWD not defined, can't validate RCU schemas creation"
   exit 1
-fi;
-
-# - BI_CONFIG_RCU_NEW_DB_PWD
-if [ "$BI_CONFIG_RCU_NEW_DB_PWD" == "" ]; then
-  BI_CONFIG_RCU_NEW_DB_PWD=Admin123
-  echo "BI_CONFIG_RCU_NEW_DB_PWD not defined, default: $BI_CONFIG_RCU_NEW_DB_PWD"
 fi;
 
 # - BI_CONFIG_RCU_DB_PREFIX
@@ -108,7 +102,7 @@ RCU_SETTINGS="$RCU_SETTINGS $DBCONN_PARAM"
 RCU_SETTINGS="$RCU_SETTINGS $COMPONENTS"
 
 # write password in file
-(echo $BI_CONFIG_RCU_PWD; echo $BI_CONFIG_RCU_NEW_DB_PWD) > $ORACLE_HOME/_tmp_rcu.dat
+(echo $BI_CONFIG_RCU_PWD; echo $BI_CONFIG_RCU_PWD) > $ORACLE_HOME/_tmp_rcu.dat
 
 #
 # validate RCU create command and settings 
@@ -124,4 +118,3 @@ fi
 
 # remove password file
 rm $ORACLE_HOME/_tmp_rcu.dat
-

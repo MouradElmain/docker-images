@@ -2,7 +2,7 @@
 
 #
 # File: _configureOAS.sh
-# Purpose: Execute the configuration of OAS 5.9.0 in Docker container
+# Purpose: Execute the configuration of OAS in Docker container
 # Author: Gianni Ceresa (gianni.ceresa@datalysis.ch), February 2020
 # Absolutely no warranty, use at your own risk
 # Please include this header in any copy or reuse of the script you make
@@ -120,7 +120,7 @@ if [ "$BI_CONFIG_RCU_DB_PREFIX" == "" ]; then
 fi;
 sed -i -e "s|###BI_CONFIG_RCU_DB_PREFIX###|$BI_CONFIG_RCU_DB_PREFIX|g" $RSP_FILE
 
-# - BI_CONFIG_RCU_NEW_DB_PWD
+# - BI_CONFIG_RCU_DB_PREFIX
 if [ "$BI_CONFIG_RCU_NEW_DB_PWD" == "" ]; then
   BI_CONFIG_RCU_NEW_DB_PWD=Admin123
   echo "BI_CONFIG_RCU_NEW_DB_PWD not defined, default: $BI_CONFIG_RCU_NEW_DB_PWD"
